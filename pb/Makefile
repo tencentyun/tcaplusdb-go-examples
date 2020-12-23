@@ -5,10 +5,12 @@ GOCMD=go
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 BINARY_NAME=example
-
-all: build
+TEST_NAME=test
+all: build test
 build:
 	$(GOBUILD) -o $(BINARY_NAME) example.go
+test:
+	$(GOBUILD) -o $(TEST_NAME) test.go
 clean:
 	$(GOCLEAN)
-	rm -f $(BINARY_NAME)
+	rm -f $(BINARY_NAME) $(TEST_NAME)

@@ -1,14 +1,8 @@
 package main
 
 import (
-	"crypto/md5"
-	"flag"
 	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
-	"runtime"
-	"sync"
-	"time"
-
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb"
 	"google.golang.org/protobuf/proto"
 )
@@ -165,133 +159,9 @@ func example() {
 	fmt.Printf("error:%s, message:%+v\n", err, msgs)
 }
 
-var (
-	ttt = flag.Int("t", 5, "route num")
-	nnn = flag.Int("n", 2000, "num")
-	f   = flag.String("f", "insert", "select func insert|get")
-)
 
 func main() {
-	flag.Parse()
-	runtime.GOMAXPROCS(runtime.NumCPU())
+	example()
 
-	if *f == "get" {
-		TcaplusQueryTest(*ttt, *nnn)
-	}
-	TcaplusInsertTest(*ttt, *nnn)
 }
 
-func TcaplusInsertTest(tCount int, num int) {
-	c := tcaplus.NewPBClient()
-	if err := c.SetLogCfg("./logconf.xml"); err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	zoneList := []uint32{ZoneId}
-	zoneTable := make(map[uint32][]string)
-	zoneTable[ZoneId] = []string{TableName}
-	err := c.Dial(AppId, zoneList, DirUrl, Signature, 30, zoneTable)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	records := make([]*tcaplusservice.GamePlayers, tCount*num)
-	for i := 0; i < tCount*num; i++ {
-		randseed := fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprint(int64(i)*12345))))
-		records[i] = &tcaplusservice.GamePlayers{
-			PlayerId:        int64(i) * 12345,
-			PlayerName:      string(randseed[:]),
-			PlayerEmail:     string(randseed[:]),
-			GameServerId:    10,
-			LoginTimestamp:  []string{"2019-12-12 15:00:00"},
-			LogoutTimestamp: []string{"2019-12-12 16:00:00"},
-			IsOnline:        false,
-			Pay: &tcaplusservice.Payment{
-				PayId:  10101,
-				Amount: 1000,
-				Method: 1,
-			},
-		}
-	}
-
-	for {
-		var wg sync.WaitGroup
-		start := time.Now()
-		maxCost := time.Duration(0)
-		for i := 0; i < tCount; i++ {
-			wg.Add(1)
-			go func(count int, t int) {
-				for n := 0; n < count; n++ {
-					begin := time.Now()
-					c.Insert(records[t*count+n])
-					end := time.Since(begin)
-					if end > maxCost {
-						maxCost = end
-					}
-				}
-				wg.Done()
-			}(num, i)
-			if i%2 == 0 {
-				time.Sleep(time.Nanosecond * 1)
-			}
-		}
-		fmt.Println("start cost", time.Since(start))
-		wg.Wait()
-		fmt.Println("insert cost: ", time.Since(start), "max ", maxCost)
-		time.Sleep(time.Microsecond * 1000)
-	}
-}
-
-func TcaplusQueryTest(tCount int, num int) {
-	c := tcaplus.NewPBClient()
-	if err := c.SetLogCfg("./logconf.xml"); err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	zoneList := []uint32{ZoneId}
-	zoneTable := make(map[uint32][]string)
-	zoneTable[ZoneId] = []string{TableName}
-	err := c.Dial(AppId, zoneList, DirUrl, Signature, 30, zoneTable)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	records := make([]*tcaplusservice.GamePlayers, tCount*num)
-	for i := 0; i < tCount*num; i++ {
-		randseed := fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprint(int64(i)*12345))))
-		records[i] = &tcaplusservice.GamePlayers{
-			PlayerId:    int64(i) * 12345,
-			PlayerName:  string(randseed[:]),
-			PlayerEmail: string(randseed[:]),
-		}
-	}
-
-	for {
-		var wg sync.WaitGroup
-		start := time.Now()
-		maxCost := time.Duration(0)
-		for i := 0; i < tCount; i++ {
-			wg.Add(1)
-			go func(count int, t int) {
-				for n := 0; n < count; n++ {
-					begin := time.Now()
-					c.Get(records[t*count+n])
-					end := time.Since(begin)
-					if end > maxCost {
-						maxCost = end
-					}
-				}
-				wg.Done()
-			}(num, i)
-			if i%2 == 0 {
-				time.Sleep(time.Nanosecond * 1)
-			}
-		}
-		fmt.Println("start cost", time.Since(start))
-		wg.Wait()
-		fmt.Println("insert cost: ", time.Since(start), "max ", maxCost)
-		time.Sleep(time.Microsecond * 1000)
-	}
-}
