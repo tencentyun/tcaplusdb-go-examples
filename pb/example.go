@@ -30,7 +30,7 @@ const (
 )
 
 //声明一个TcaplusDB连接客户端
-var client *PBClient
+var client *tcaplus.PBClient
 
 //初始化客户端连接
 func initClient() {
@@ -69,7 +69,7 @@ func insertRecord() {
 			Method: 1,
 		},
 	}
-	err = client.Insert(record)
+	err := client.Insert(record)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -87,7 +87,7 @@ func getRecord() {
 		PlayerName:  "Calvin",
 		PlayerEmail: "calvin@test.com",
 	}
-	err = client.Get(record)
+	err := client.Get(record)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -114,7 +114,7 @@ func replaceRecord() {
 			Method: 2,
 		},
 	}
-	err = client.Replace(record)
+	err := client.Replace(record)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -141,7 +141,7 @@ func updateRecord() {
 			Method: 4,
 		},
 	}
-	err = client.Update(record)
+	err := client.Update(record)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -159,7 +159,7 @@ func fieldGetRecord() {
 		PlayerName:  "Calvin",
 		PlayerEmail: "calvin@test.com",
 	}
-	err = client.FieldGet(record, []string{"pay", "pay.pay_id"})
+	err := client.FieldGet(record, []string{"pay", "pay.pay_id"})
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -181,7 +181,7 @@ func fieldUpdateRecord() {
 			Amount: 1002,
 		},
 	}
-	err = client.FieldUpdate(record, []string{"pay.amount", "pay.pay_id"})
+	err := client.FieldUpdate(record, []string{"pay.amount", "pay.pay_id"})
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -203,7 +203,7 @@ func fieldIncreaseRecord() {
 			Amount: 1002,
 		},
 	}
-	err = client.FieldIncrease(record, []string{"pay.amount", "pay.pay_id"})
+	err := client.FieldIncrease(record, []string{"pay.amount", "pay.pay_id"})
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -221,7 +221,7 @@ func deleteRecord() {
 		PlayerName:  "Calvin",
 		PlayerEmail: "calvin@test.com",
 	}
-	err = client.Delete(record)
+	err := client.Delete(record)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -246,7 +246,7 @@ func batchGetRecord() {
 	}
 
 	msgs := []proto.Message{key, key2}
-	err = client.BatchGet(msgs)
+	err := client.BatchGet(msgs)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -303,7 +303,7 @@ func indexQuery() {
 func traverse() {
 
 	tra := client.GetTraverser(ZoneId, TableName)
-	err = tra.Start()
+	err := tra.Start()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
