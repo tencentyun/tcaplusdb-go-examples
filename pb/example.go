@@ -1,35 +1,40 @@
 package main
 
-import (
-	"fmt"
-	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
-	"github.com/tencentyun/tcaplusdb-go-sdk/pb"
-	"google.golang.org/protobuf/proto"
-)
-
 /*******************************************************************************************************************************************
 * author : Tcaplus
-* created : 2020.05.21
 * note :本例将演示TcaplusDB PB API的使用方法, 假定用户已经通过 game_players.proto 在自己的TcaplusDB应用中创建了名为 game_players 的表
 创建表格、获取访问点信息的指引请参考 https://cloud.tencent.com/document/product/596/38807。
 ********************************************************************************************************************************************/
 
+import (
+	"fmt"
+	"time"
+
+	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
+	tcaplus "github.com/tencentyun/tcaplusdb-go-sdk/pb"
+	"google.golang.org/protobuf/proto"
+)
+
 //TcaplusDB RESTful API的连接参数
 const (
-	//服务接入点,表所在集群Dir连接地址
+	//集群访问地址，本地docker版：配置docker部署机器IP, 端口默认:9999, 腾讯云线上环境配置为连接地址IP和端口
 	DirUrl = "tcp://x.x.x.x:xxxx"
-	//应用接入id，表所在集群接入ID
-	AppId = 1
-	//应用密码,表所在集群访问密码
+	//集群接入ID, 默认为3，本地docker版：直接填3，云上版本：根据实际集群接入ID填写
+	AppId = 3
+	//集群访问密码，本地docker版：参考集群准备阶段获取集群密码步骤，需要借助tcaplusdb web运维平台查看; 云上版本：根据实际申请集群详情页查看
 	Signature = "xxxxx"
-	//表格组ID
+	//表格组ID，替换为自己创建的表格组ID
 	ZoneId = 2
 	//表名称
 	TableName = "game_players"
 )
 
-func example() {
-	//1.通过指定接入ID(AppId), 表格组id表表(zoneList), 接入地址(DirUrl), 集群密码(Signature) 参数创建TcaplusClient的对象client
+//声明一个TcaplusDB连接客户端
+var client *PBClient
+
+//初始化客户端连接
+func initClient() {
+	//通过指定接入ID(AppId), 表格组id表表(zoneList), 接入地址(DirUrl), 集群密码(Signature) 参数创建TcaplusClient的对象client
 	//通过client对象可以访问集群下的所有大区和表
 	//创建表格、获取访问点信息的指引请参考 https://cloud.tencent.com/document/product/596/38807
 	client := tcaplus.NewPBClient()
@@ -45,7 +50,11 @@ func example() {
 		return
 	}
 
-	//2.AddRecord插入记录
+}
+
+// 插入记录
+func insertRecord() {
+
 	record := &tcaplusservice.GamePlayers{
 		PlayerId:        10805514,
 		PlayerName:      "Calvin",
@@ -65,50 +74,43 @@ func example() {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println("Case AddRecord:")
+
+	fmt.Println("Case Insert:")
 	fmt.Printf("error:%s, message:%+v\n", err, record)
+}
 
-	//3.GetRecord查询记录
-	key := &tcaplusservice.GamePlayers{
+// 获取记录
+func getRecord() {
+
+	record := &tcaplusservice.GamePlayers{
 		PlayerId:    10805514,
 		PlayerName:  "Calvin",
 		PlayerEmail: "calvin@test.com",
 	}
-	err = client.Get(key)
+	err = client.Get(record)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println("Case GetRecord:")
-	fmt.Printf("error:%s, message:%+v\n", err, key)
 
-	//4.DeleteRecord查询记录
-	key = &tcaplusservice.GamePlayers{
-		PlayerId:    10805514,
-		PlayerName:  "Calvin",
-		PlayerEmail: "calvin@test.com",
-	}
-	err = client.Delete(key)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	fmt.Println("Case GetRecord:")
-	fmt.Printf("error:%s, message:%+v\n", err, key)
+	fmt.Println("Case Get:")
+	fmt.Printf("error:%s, message:%+v\n", err, record)
+}
 
-	//5.ReplaceRecord设置记录,存在则更新；不存在，则插入
-	//record用户也可将其定义成结构体/map/slice，需可转成json
-	record = &tcaplusservice.GamePlayers{
+// 替换记录（记录不存在则插入）
+func replaceRecord() {
+
+	record := &tcaplusservice.GamePlayers{
 		PlayerId:        10805514,
 		PlayerName:      "Calvin",
 		PlayerEmail:     "calvin@test.com",
-		GameServerId:    10,
-		LoginTimestamp:  []string{"2019-12-12 15:00:03"},
-		LogoutTimestamp: []string{"2019-12-12 16:00:03"},
+		GameServerId:    12,
+		LoginTimestamp:  []string{"2019-12-12 15:00:00"},
+		LogoutTimestamp: []string{"2019-12-12 16:00:00"},
 		IsOnline:        false,
 		Pay: &tcaplusservice.Payment{
 			PayId:  10102,
-			Amount: 10002,
+			Amount: 1002,
 			Method: 2,
 		},
 	}
@@ -117,22 +119,26 @@ func example() {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println("Case SetRecord:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
 
-	//6.UpdateRecord设置记录,存在则更新；不存在，则插入
-	record = &tcaplusservice.GamePlayers{
+	fmt.Println("Case Replace:")
+	fmt.Printf("error:%s, message:%+v\n", err, record)
+}
+
+// 修改记录 （记录不存在则报错）
+func updateRecord() {
+
+	record := &tcaplusservice.GamePlayers{
 		PlayerId:        10805514,
 		PlayerName:      "Calvin",
 		PlayerEmail:     "calvin@test.com",
-		GameServerId:    10,
-		LoginTimestamp:  []string{"2019-12-12 15:00:03"},
-		LogoutTimestamp: []string{"2019-12-12 16:00:03"},
+		GameServerId:    12,
+		LoginTimestamp:  []string{"2019-12-12 15:00:00"},
+		LogoutTimestamp: []string{"2019-12-12 16:00:00"},
 		IsOnline:        false,
 		Pay: &tcaplusservice.Payment{
-			PayId:  10102,
-			Amount: 10002,
-			Method: 2,
+			PayId:  10104,
+			Amount: 1004,
+			Method: 4,
 		},
 	}
 	err = client.Update(record)
@@ -140,28 +146,223 @@ func example() {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println("Case SetRecord:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
 
-	//7.GetRecord查询记录
-	key2 := &tcaplusservice.GamePlayers{
+	fmt.Println("Case Update:")
+	fmt.Printf("error:%s, message:%+v\n", err, record)
+}
+
+// 获取部分value
+func fieldGetRecord() {
+
+	record := &tcaplusservice.GamePlayers{
 		PlayerId:    10805514,
 		PlayerName:  "Calvin",
 		PlayerEmail: "calvin@test.com",
 	}
+	err = client.FieldGet(record, []string{"pay", "pay.pay_id"})
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println("Case FieldGet:")
+	fmt.Printf("error:%s, message:%+v\n", err, record)
+}
+
+// 更新部分value
+func fieldUpdateRecord() {
+
+	record := &tcaplusservice.GamePlayers{
+		PlayerId:    10805514,
+		PlayerName:  "Calvin",
+		PlayerEmail: "calvin@test.com",
+		Pay: &tcaplusservice.Payment{
+			PayId:  10102,
+			Amount: 1002,
+		},
+	}
+	err = client.FieldUpdate(record, []string{"pay.amount", "pay.pay_id"})
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println("Case FieldUpdate:")
+	fmt.Printf("error:%s, message:%+v\n", err, record)
+}
+
+// 部分value自增
+func fieldIncreaseRecord() {
+
+	record := &tcaplusservice.GamePlayers{
+		PlayerId:    10805514,
+		PlayerName:  "Calvin",
+		PlayerEmail: "calvin@test.com",
+		Pay: &tcaplusservice.Payment{
+			PayId:  10102,
+			Amount: 1002,
+		},
+	}
+	err = client.FieldIncrease(record, []string{"pay.amount", "pay.pay_id"})
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println("Case FieldIncrease:")
+	fmt.Printf("error:%s, message:%+v\n", err, record)
+}
+
+// 删除记录
+func deleteRecord() {
+
+	record := &tcaplusservice.GamePlayers{
+		PlayerId:    10805514,
+		PlayerName:  "Calvin",
+		PlayerEmail: "calvin@test.com",
+	}
+	err = client.Delete(record)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println("Case Delete:")
+	fmt.Printf("error:%s, message:%+v\n", err, record)
+}
+
+// 批量获取记录
+func batchGetRecord() {
+
+	key := &tcaplusservice.GamePlayers{
+		PlayerId:    10805510,
+		PlayerName:  "Calvin",
+		PlayerEmail: "calvin@test.com",
+	}
+	key2 := &tcaplusservice.GamePlayers{
+		PlayerId:    10805511,
+		PlayerName:  "Calvin",
+		PlayerEmail: "calvin@test.com",
+	}
+
 	msgs := []proto.Message{key, key2}
 	err = client.BatchGet(msgs)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println("Case GetRecord:")
+
+	fmt.Println("Case BatchGet:")
 	fmt.Printf("error:%s, message:%+v\n", err, msgs)
 }
 
+// 部分key字段获取记录
+func partkeyGetRecord() {
 
-func main() {
-	example()
+	record := &tcaplusservice.GamePlayers{
+		PlayerId:   10805514,
+		PlayerName: "Calvin",
+	}
+	msgs, err := client.GetByPartKey(record, []string{"player_id", "player_name"})
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
+	fmt.Println("Case GetByPartKey:")
+	fmt.Printf("error:%s, message:%+v\n", err, msgs)
 }
 
+// 二级索引查询, 需设置索引才能使用
+func indexQuery() {
+
+	// 非聚合查询
+	query := fmt.Sprintf("select pay.pay_id, pay.amount from game_players where player_id=10805514")
+	msgs, _, err := client.IndexQuery(query)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println("Case IndexQuery:")
+	fmt.Printf("error:%s, message:%+v\n", err, msgs)
+
+	// 聚合查询
+	query = fmt.Sprintf("select count(pay) from game_players where player_id=10805514")
+	_, res, err := client.IndexQuery(query)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println("Case IndexQuery:")
+	fmt.Printf("error:%s, message:%+v\n", err, res)
+}
+
+// 遍历记录
+func traverse() {
+
+	tra := client.GetTraverser(ZoneId, TableName)
+	err = tra.Start()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for {
+		resp, err := client.RecvResponse()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		} else if resp == nil {
+			if tra.State() == 1 {
+				break
+			} else {
+				time.Sleep(time.Microsecond * 10)
+				continue
+			}
+		}
+
+		if err := resp.GetResult(); err != 0 {
+			fmt.Println(err)
+			return
+		}
+
+		for i := 0; i < resp.GetRecordCount(); i++ {
+			record, err := resp.FetchRecord()
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			msg := &tcaplusservice.GamePlayers{}
+			err = record.GetPBData(msg)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			fmt.Println("Case traverse:")
+			fmt.Printf("error:%s, message:%+v\n", err, msg)
+		}
+	}
+}
+
+func main() {
+	initClient()
+	//insertRecord()
+	//getRecord()
+	//replaceRecord()
+	//updateRecord()
+	//batchGetRecord()
+	//partkeyGetRecord()
+	//fieldGetRecord()
+	//fieldUpdateRecord()
+	//fieldIncreaseRecord()
+	//deleteRecord()
+
+	//batchGetRecord()		// 使用前请插入需要查询的记录
+	//partkeyGetRecord()	// 使用前请插入需要查询的记录
+	//indexQuery()			// 使用前请设置索引
+	//traverse()			// 使用前请先随便插入几条记录
+}
