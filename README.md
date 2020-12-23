@@ -25,6 +25,11 @@ yum install golang
 |---|---|
 |protoc|[Download](https://github.com/protocolbuffers/protobuf/releases)|
 |protoc-gen-go|[Download](https://github.com/golang/protobuf)|
+
+备注:
+* protoc下载后，直接拷贝到/usr/bin目录
+* protoc-gen-go下载后，进入相应目录，直接`go build -o protoc-gen-go main.go`，可得到二进制文件，把其拷贝到/usr/bin系统目录
+
 ## TcaplusDB表准备
 ### 准备PROTO表示例文件
 这里以示例中的game_players.proto举例，表名: `game_players`, 表类型: `GENERIC`。文件具体内容如下：
@@ -151,6 +156,11 @@ git clone https://github.com/tencentyun/tcaplusdb-go-examples.git
 #### 表接口代码生成
 如果不想用示例代码中的示例表，参照game_players.proto定义好后，可以用如下命令生成：
 ```
+cd table
+mkdir tcaplusservice
+#生成pb协议接口代码
+protoc --go_out=./tcaplusservice tcaplusservice.optionv1.proto
+#生成表定义接口代码
 protoc --go_out=./tcaplusservice mytable.proto
 ```
 备注：

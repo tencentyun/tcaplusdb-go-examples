@@ -39,6 +39,7 @@ github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81P
 github.com/tencentyun/tcaplusdb-go-examples v0.0.0-20201222063911-2f5a40785d29 h1:2ktGfQJZrfcdJpzYjAg57IQhwUZswn/081twnEbeFzQ=
 github.com/tencentyun/tcaplusdb-go-sdk v0.1.0 h1:VFbr5+9L9oQMgeAE8BRQ2RF8PEeFJUsDS5t/OH5vh1A=
 github.com/tencentyun/tcaplusdb-go-sdk v0.1.0/go.mod h1:nDnqodFBkbXwn8K0jUYBrZrbLiqwzkqaqzS/ICL/iYQ=
+github.com/tencentyun/tcaplusdb-go-sdk v0.1.2/go.mod h1:nDnqodFBkbXwn8K0jUYBrZrbLiqwzkqaqzS/ICL/iYQ=
 github.com/tencentyun/tsf4g v0.0.1 h1:GSpjSWMZ9hskqWvGjU6uKLz74bJFsCax4W/rnnOwQXw=
 github.com/tencentyun/tsf4g v0.0.1/go.mod h1:cJ1HM661kszsKRGkDHentqj/5mY3Vt4v3ATBitRb3f4=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
