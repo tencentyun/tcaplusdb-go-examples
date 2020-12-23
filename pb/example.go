@@ -37,8 +37,12 @@ func initClient() {
 	//通过指定接入ID(AppId), 表格组id表表(zoneList), 接入地址(DirUrl), 集群密码(Signature) 参数创建TcaplusClient的对象client
 	//通过client对象可以访问集群下的所有大区和表
 	//创建表格、获取访问点信息的指引请参考 https://cloud.tencent.com/document/product/596/38807
-	client := tcaplus.NewPBClient()
-
+	client = tcaplus.NewPBClient()
+	//设置log配置，log级别默认可设置为ERROR或INFO
+	if err := client.SetLogCfg("./logconf.xml"); err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 	zoneList := []uint32{ZoneId}
 	zoneTable := make(map[uint32][]string)
 	//构造Map对象存储对应表格组下所有的表
@@ -94,7 +98,7 @@ func getRecord() {
 	}
 
 	fmt.Println("Case Get:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
+	fmt.Printf("message:%+v\n", record)
 }
 
 // 替换记录（记录不存在则插入）
@@ -121,7 +125,7 @@ func replaceRecord() {
 	}
 
 	fmt.Println("Case Replace:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
+	fmt.Printf("message:%+v\n", record)
 }
 
 // 修改记录 （记录不存在则报错）
@@ -148,7 +152,7 @@ func updateRecord() {
 	}
 
 	fmt.Println("Case Update:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
+	fmt.Printf("message:%+v\n", record)
 }
 
 // 获取部分value
@@ -166,7 +170,7 @@ func fieldGetRecord() {
 	}
 
 	fmt.Println("Case FieldGet:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
+	fmt.Printf("message:%+v\n", record)
 }
 
 // 更新部分value
@@ -188,7 +192,7 @@ func fieldUpdateRecord() {
 	}
 
 	fmt.Println("Case FieldUpdate:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
+	fmt.Printf("message:%+v\n", record)
 }
 
 // 部分value自增
@@ -210,7 +214,7 @@ func fieldIncreaseRecord() {
 	}
 
 	fmt.Println("Case FieldIncrease:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
+	fmt.Printf("message:%+v\n", record)
 }
 
 // 删除记录
@@ -228,7 +232,7 @@ func deleteRecord() {
 	}
 
 	fmt.Println("Case Delete:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
+	fmt.Printf("message:%+v\n", record)
 }
 
 // 批量获取记录
@@ -253,7 +257,7 @@ func batchGetRecord() {
 	}
 
 	fmt.Println("Case BatchGet:")
-	fmt.Printf("error:%s, message:%+v\n", err, msgs)
+	fmt.Printf("message:%+v\n", msgs)
 }
 
 // 部分key字段获取记录
@@ -270,7 +274,7 @@ func partkeyGetRecord() {
 	}
 
 	fmt.Println("Case GetByPartKey:")
-	fmt.Printf("error:%s, message:%+v\n", err, msgs)
+	fmt.Printf("message:%+v\n", msgs)
 }
 
 // 二级索引查询, 需设置索引才能使用
@@ -285,7 +289,7 @@ func indexQuery() {
 	}
 
 	fmt.Println("Case IndexQuery:")
-	fmt.Printf("error:%s, message:%+v\n", err, msgs)
+	fmt.Printf("message:%+v\n", msgs)
 
 	// 聚合查询
 	query = fmt.Sprintf("select count(pay) from game_players where player_id=10805514")
@@ -296,7 +300,7 @@ func indexQuery() {
 	}
 
 	fmt.Println("Case IndexQuery:")
-	fmt.Printf("error:%s, message:%+v\n", err, res)
+	fmt.Printf("message:%+v\n", res)
 }
 
 // 遍历记录
@@ -343,7 +347,7 @@ func traverse() {
 			}
 
 			fmt.Println("Case traverse:")
-			fmt.Printf("error:%s, message:%+v\n", err, msg)
+			fmt.Printf("message:%+v\n", msg)
 		}
 	}
 }
