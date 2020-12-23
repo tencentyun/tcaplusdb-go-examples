@@ -1,6 +1,6 @@
 # Go parameters
-export GO111MODULE=off
-export GOPATH:=$(shell pwd)/../../
+#export GO111MODULE=off
+#export GOPATH:=$(shell pwd)/../
 GOCMD=go
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
