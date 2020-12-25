@@ -1,14 +1,15 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
-	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/response"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/terror"
-	"time"
 )
 
 func main() {
@@ -51,9 +52,9 @@ func main() {
 
 	// 向记录中填充数据
 	msg := &tcaplusservice.GamePlayers{
-		PlayerId:        10805514,
-		PlayerName:      "Calvin",
-		PlayerEmail:     "calvin@test.com",
+		PlayerId:    10805514,
+		PlayerName:  "Calvin",
+		PlayerEmail: "calvin@test.com",
 	}
 	// 第一个返回值为记录的keybuf，用来唯一确定一条记录，多用于请求与响应记录相对应，此处无用
 	// key 字段必填，通过 proto 文件设置 key
@@ -95,7 +96,7 @@ func main() {
 	}
 
 	// 等待收取响应
-	resp := <- respChan
+	resp := <-respChan
 
 	// 获取响应结果
 	errCode := resp.GetResult()
