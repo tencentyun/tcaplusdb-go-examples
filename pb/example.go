@@ -2,13 +2,15 @@ package main
 
 /*******************************************************************************************************************************************
 * author : Tcaplus
-* note :本例将演示TcaplusDB PB API的使用方法, 假定用户已经通过 game_players.proto 在自己的TcaplusDB应用中创建了名为 game_players 的表
+* note :本例将演示TcaplusDB PB API的同步调用使用方法, 假定用户已经通过 game_players.proto 在自己的TcaplusDB应用中创建了名为 game_players 的表
 创建表格、获取访问点信息的指引请参考 https://cloud.tencent.com/document/product/596/38807。
 ********************************************************************************************************************************************/
 
 import (
 	"fmt"
 	"time"
+
+	"github.com/tencentyun/tcaplusdb-go-sdk/pb/traverser"
 
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	tcaplus "github.com/tencentyun/tcaplusdb-go-sdk/pb"
@@ -43,6 +45,7 @@ func initClient() {
 		fmt.Println(err.Error())
 		return
 	}
+
 	zoneList := []uint32{ZoneId}
 	zoneTable := make(map[uint32][]string)
 	//构造Map对象存储对应表格组下所有的表
@@ -80,7 +83,7 @@ func insertRecord() {
 	}
 
 	fmt.Println("Case Insert:")
-	fmt.Printf("error:%s, message:%+v\n", err, record)
+	fmt.Printf("message:%+v\n", record)
 }
 
 // 获取记录
@@ -305,13 +308,16 @@ func indexQuery() {
 
 // 遍历记录
 func traverse() {
-
+	//获取遍历器
 	tra := client.GetTraverser(ZoneId, TableName)
+	//开始遍历
 	err := tra.Start()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
+	//结束遍历
+	defer tra.Stop()
 
 	for {
 		resp, err := client.RecvResponse()
@@ -319,19 +325,21 @@ func traverse() {
 			fmt.Println(err.Error())
 			return
 		} else if resp == nil {
-			if tra.State() == 1 {
+			//遍历结束状态
+			if tra.State() == traverser.TraverseStateIdle {
 				break
 			} else {
 				time.Sleep(time.Microsecond * 10)
 				continue
 			}
 		}
-
+		// 操作response的GetResult获取响应结果
 		if err := resp.GetResult(); err != 0 {
 			fmt.Println(err)
 			return
 		}
-
+		//GetRecordCount获取本次响应记录条数,FetchRecord获取响应消息中的记录record，
+		// 通过record的GetPBData接口获取响应记录
 		for i := 0; i < resp.GetRecordCount(); i++ {
 			record, err := resp.FetchRecord()
 			if err != nil {
