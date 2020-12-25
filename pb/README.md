@@ -1,4 +1,4 @@
-# tcaplusdb-go-examples
+# tcaplusdb-go-pb-examples
 Table of Contents
 =================
 
@@ -63,7 +63,7 @@ PROTO表是基于PROTOBUF协议设计的TcaplusDB表，PROTOBUF协议是Google�
 Docker部署好后，对于命令行工具需要授权所有IP访问Docker环境，授权方式:
 ```
 #access-id指定业务id, 2: tdr业务，3: pb业务，这里是pb业务所以默认为3
-./tcapluscli privilege --endpoint-url=http://localhost --access-id=3--allow-all-ip
+./tcapluscli privilege --endpoint-url=http://localhost --access-id=3 --allow-all-ip
 ```
 
 ## Go环境准备
@@ -215,6 +215,7 @@ git clone https://github.com/tencentyun/tcaplusdb-go-examples.git
 * __sync__: 同步调用模式示例代码，包含两个文件，一个example.go放置所有接口示例代码，一个test.go压测读写接口示例
 * __table__: 放置tcaplusdb表相关定义文件及生成的接口定义代码(protoc,protoc-gen-go生成)
 * __tools__: 公共目录，放置一些公共代码，如客户端初始化、接收响应、结构体转换等代码
+* __log__: 日志目录，第一次调用接口会自动生成，保存接口调用过程中产品的业务日志
 
 #### 配置文件说明
 在cfg目录下存放了两个配置文件：api_cfg.xml, logconf.xml。主要是异步调用模式代码需要使用，同步模式这些配置直接在代码中。
