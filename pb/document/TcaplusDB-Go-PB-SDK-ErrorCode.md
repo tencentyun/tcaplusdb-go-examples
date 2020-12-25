@@ -26,6 +26,10 @@ import "github.com/tencentyun/tcaplusdb-go-sdk/pb/terror"
 ```
 //示例插入，假设record已经在表中存在
 err := client.Insert(record)
+//错误处理, 通过err.error()捕获错误信息
+if err != nil {
+    fmt.Printf("%v\n", err.Error())
+}
 //示例错误
 errCode: -1293, errMsg: tcapsvr_fail_record_exist
 ```
@@ -41,6 +45,8 @@ if errCode != terror.GEN_ERR_SUC {
                 fmt.Printf("insert error:%s\n", terror.GetErrMsg(errCode))
                 return
 }
+//示例错误信息
+insert error: errCode:-1293, errMsg:tcapsvr_fail_record_exist
 ```
 
 # 3.常见错误码
