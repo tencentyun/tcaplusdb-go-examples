@@ -679,8 +679,8 @@ func indexQuery() {
 异步接口调用步骤：
 * 1.客户端建立，参考客户端接口部分，包括初始化(NewPBClient)和连接(Dial)两步骤, client := tcaplus.NewPBClient(), client.Dial(...)
 * 2.初始化连接请求, client.NewRequest(...)
-* 3. 为请求添加一条记录，record, err := request.AddRecord(...)
-* 4. 为记录初始化值, record.SetPBData(...)
+* 3.为请求添加一条记录，record, err := request.AddRecord(...)
+* 4.为记录初始化值, record.SetPBData(...)
 * 5.发送请求, client.SendRequest(...)
 * 6.异步接收请求，resp, err := client.RecvResponse(...)
 * 7. 判断响应结果返回码，resp.GetResult(), 如果为0表示SUCCESS，否则处理相应错误码
@@ -688,6 +688,7 @@ func indexQuery() {
 
 * __备注__: 异步模式除了遍历表traverse接口外，其它11个接口都是用统一的调用步骤，方便用户统一调用，同时每个接口通过命令字方式来区分接口的不同。
 目前异步模式11个接口命令字列表如下：
+
 |命令字别名|命令字编码|命令字说明|
 |---|---|---|
 |TcaplusApiInsertReq|0x0001|插入记录|
@@ -702,7 +703,7 @@ func indexQuery() {
 |TcaplusApiPBFieldIncreaseReq|0x006b|记录部分字段自增|
 |TcaplusApiSqlReq|0x0081|二级索引查询|
 
-备注：命令字在`github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd`中定义
+备注：命令字在`github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd`中定义。
 
 对于异步接口示例代码直接参考`async`下对应接口的示例代码文件，这里不一一列出。下面只针对遍历接口示例进行说明。
 
