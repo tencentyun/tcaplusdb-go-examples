@@ -41,7 +41,7 @@ func initClient() {
 	//创建表格、获取访问点信息的指引请参考 https://cloud.tencent.com/document/product/596/38807
 	client = tcaplus.NewPBClient()
 	//设置log配置，log级别默认可设置为ERROR或INFO
-	if err := client.SetLogCfg("./logconf.xml"); err != nil {
+	if err := client.SetLogCfg("../cfg/logconf.xml"); err != nil {
 		fmt.Println(err.Error())
 		return
 	}
