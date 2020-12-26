@@ -55,11 +55,11 @@ Table of Contents
 
 
 # PROTOBUF说明
-PROTO表是基于PROTOBUF协议设计的TcaplusDB表，PROTOBUF协议是Google开源的通用RPC通信协议，用于TcaplusDB存储数据的序列化、反序列化等操作，具体关于PROTO表的定义说明可参考章节：表定义语言（PB，TDR）。PROTO表定义以protobuf格式来定义表结构，支持丰富的数据类型，请参考章节：数据类型(PB, TDR)。
+PROTO表是基于PROTOBUF协议设计的TcaplusDB表，PROTOBUF协议是Google开源的通用RPC通信协议，用于TcaplusDB存储数据的序列化、反序列化等操作，具体关于PROTO表的定义说明可参考章节：[PROTO表定义](https://cloud.tencent.com/document/product/596/44406)。PROTO表定义以protobuf格式来定义表结构，支持丰富的数据类型, 可参考protobuf支持的类型。
 #  入门
 快速入手PROTOBUF协议表的开发涉及几个步骤，下面介绍如何基于TcalusDB本地Docker版环境，快速上手基于Golang进行PROTO表的增删查改操作。所有操作均在申请的开发测试机或云主机进行。
 ## Docker环境准备
-在开始示例代码演示之前，需要提前准备好TcaplusDB本地Docker环境及tcapluscli工具，具体请参考资料：TcaplusDB入门-Docker部署篇.md。
+在开始示例代码演示之前，需要提前准备好TcaplusDB本地Docker环境及tcapluscli工具，具体请参考资料：[TcaplusDB入门-Docker部署篇.md](https://github.com/tencentyun/tcaplusdb-documents/blob/main/docker/TcaplusDB%E5%85%A5%E9%97%A8-Docker%E9%83%A8%E7%BD%B2%E7%AF%87.md)。
 Docker部署好后，对于命令行工具需要授权所有IP访问Docker环境，授权方式:
 ```
 #access-id指定业务id, 2: tdr业务，3: pb业务，这里是pb业务所以默认为3
