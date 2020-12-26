@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"github.com/tencentyun/tcaplusdb-go-examples/tdr/sync/service_info"
 	"time"
 
-	"github.com/tencentyun/tcaplusdb-go-sdk/tdr"
+	"github.com/tencentyun/tcaplusdb-go-examples/tdr/sync/service_info"
+
+	tcaplus "github.com/tencentyun/tcaplusdb-go-sdk/tdr"
 	"github.com/tencentyun/tcaplusdb-go-sdk/tdr/protocol/cmd"
 	"github.com/tencentyun/tcaplusdb-go-sdk/tdr/terror"
 )
@@ -116,13 +117,13 @@ func getPartKeyExample() {
 	data.Name = "com"
 	//将tdr的数据设置到请求的记录中
 	//flist := []string {"updatetime"}
-	var flist  []string = nil
-	if err := rec.SetDataWithIndexAndField(data, flist,"Index_Gameid_Name"); err != nil {
+	var flist []string = nil
+	if err := rec.SetDataWithIndexAndField(data, flist, "Index_Gameid_Name"); err != nil {
 		fmt.Printf("SetData failed %v\n", err.Error())
 		return
 	}
 
-	respList, err := client.DoMore(req, time.Duration(10*time.Second));
+	respList, err := client.DoMore(req, time.Duration(10*time.Second))
 	if err != nil {
 		fmt.Printf("recv err %s\n", err.Error())
 
