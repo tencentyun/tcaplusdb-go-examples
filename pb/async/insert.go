@@ -1,14 +1,15 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
-	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/response"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/terror"
-	"time"
 )
 
 func main() {
@@ -94,7 +95,7 @@ func main() {
 	}
 
 	// 等待收取响应
-	resp := <- respChan
+	resp := <-respChan
 
 	// 获取响应结果
 	errCode := resp.GetResult()
