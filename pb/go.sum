@@ -37,6 +37,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/tencentyun/tcaplusdb-go-examples v0.0.0-20201222063911-2f5a40785d29 h1:2ktGfQJZrfcdJpzYjAg57IQhwUZswn/081twnEbeFzQ=
+github.com/tencentyun/tcaplusdb-go-sdk v0.0.2 h1:n9t6lcH0h6eM+i9kMtufaj581YYuex2ecUGZk5GO4h0=
+github.com/tencentyun/tcaplusdb-go-sdk v0.0.2/go.mod h1:nDnqodFBkbXwn8K0jUYBrZrbLiqwzkqaqzS/ICL/iYQ=
 github.com/tencentyun/tcaplusdb-go-sdk v0.1.0 h1:VFbr5+9L9oQMgeAE8BRQ2RF8PEeFJUsDS5t/OH5vh1A=
 github.com/tencentyun/tcaplusdb-go-sdk v0.1.0/go.mod h1:nDnqodFBkbXwn8K0jUYBrZrbLiqwzkqaqzS/ICL/iYQ=
 github.com/tencentyun/tcaplusdb-go-sdk v0.1.2 h1:ySaz5EzrPVFprPrP7kjkH2dNGBYndPIWJaJAUIbduYs=

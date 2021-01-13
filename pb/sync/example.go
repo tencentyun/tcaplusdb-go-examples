@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tencentyun/tcaplusdb-go-sdk/pb/traverser"
-
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	tcaplus "github.com/tencentyun/tcaplusdb-go-sdk/pb"
 	"google.golang.org/protobuf/proto"
@@ -94,6 +92,7 @@ func getRecord() {
 		PlayerName:  "Calvin",
 		PlayerEmail: "calvin@test.com",
 	}
+
 	err := client.Get(record)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -308,56 +307,17 @@ func indexQuery() {
 
 // 遍历记录
 func traverse() {
-	//获取遍历器
-	tra := client.GetTraverser(ZoneId, TableName)
-	//开始遍历
-	err := tra.Start()
+	record := &tcaplusservice.GamePlayers{}
+	// 遍历时间可能比较长超时时间设长一些
+	client.SetDefaultTimeOut(30 * time.Second)
+	msgs, err := client.Traverse(record)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	//结束遍历
-	defer tra.Stop()
 
-	for {
-		resp, err := client.RecvResponse()
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		} else if resp == nil {
-			//遍历结束状态
-			if tra.State() == traverser.TraverseStateIdle {
-				break
-			} else {
-				time.Sleep(time.Microsecond * 10)
-				continue
-			}
-		}
-		// 操作response的GetResult获取响应结果
-		if err := resp.GetResult(); err != 0 {
-			fmt.Println(err)
-			return
-		}
-		//GetRecordCount获取本次响应记录条数,FetchRecord获取响应消息中的记录record，
-		// 通过record的GetPBData接口获取响应记录
-		for i := 0; i < resp.GetRecordCount(); i++ {
-			record, err := resp.FetchRecord()
-			if err != nil {
-				fmt.Println(err.Error())
-				return
-			}
-
-			msg := &tcaplusservice.GamePlayers{}
-			err = record.GetPBData(msg)
-			if err != nil {
-				fmt.Println(err.Error())
-				return
-			}
-
-			fmt.Println("Case traverse:")
-			fmt.Printf("message:%+v\n", msg)
-		}
-	}
+	fmt.Println("Case Traverse:")
+	fmt.Printf("message:%+v\n", msgs)
 }
 
 func main() {
