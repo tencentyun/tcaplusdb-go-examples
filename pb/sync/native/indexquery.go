@@ -1,13 +1,14 @@
 package main
 
 import (
-	"example/table/tcaplusservice"
-	"example/tools"
+	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
+	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
 	"fmt"
+	"time"
+
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/terror"
-	"time"
 )
 
 func main() {
@@ -82,7 +83,6 @@ func main() {
 
 		fmt.Println(tools.ConvertToJson(newMsg))
 	}
-
 
 	query = fmt.Sprintf("select count(*) from game_players where player_id=10805514 and player_name=Calvin")
 	// 设置 sql ，仅用于二级索引请求

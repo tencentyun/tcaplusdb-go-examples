@@ -1,8 +1,8 @@
 package main
 
 import (
-	"example/table/tcaplusservice"
-	"example/tools"
+	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
+	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
 	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd"
