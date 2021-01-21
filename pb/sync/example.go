@@ -320,6 +320,18 @@ func traverse() {
 	fmt.Printf("message:%+v\n", msgs)
 }
 
+// 获取表记录总数
+func count() {
+        count, err := client.GetTableCount("game_players")
+        if err != nil {
+                fmt.Println(err.Error())
+                return
+        }
+
+        fmt.Println("Case Count:")
+        fmt.Printf("Count:%d\n", count)
+}
+
 func main() {
 	initClient()
 	//insertRecord()
@@ -337,4 +349,5 @@ func main() {
 	//partkeyGetRecord()	// 使用前请插入需要查询的记录
 	//indexQuery()			// 使用前请设置索引
 	//traverse()			// 使用前请先随便插入几条记录
+	//count()
 }
