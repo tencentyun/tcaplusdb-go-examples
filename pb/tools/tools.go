@@ -58,6 +58,8 @@ func InitPBSyncClient() *tcaplus.PBClient {
 			fmt.Printf("excepted SetLogCfg success")
 			return
 		}
+		//可选，作用于docker环境，用于解决本地开发环境无法连通docker容器问题
+　　pbclient.SetPublicIP(cfg.ApiConfig.PublicIP)
 
 		ZoneId = cfg.ApiConfig.ZoneId
 

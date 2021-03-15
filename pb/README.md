@@ -335,6 +335,8 @@ protoc --go_out=./tcaplusservice mytable.proto
         ZoneId = 2
         //表名称
         TableName = "game_players"
+		//Docker环境，容器创建时TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定IP;
+	    PublicIP = ""
 ```
 
 ### 编译代码
@@ -389,6 +391,7 @@ TcaplusDB Go PB SDK 包括两类模式调用：
 
 ```
 ...
+//版本:v0.0.8
 import  (
     tcaplus "github.com/tencentyun/tcaplusdb-go-sdk/pb"
 )
@@ -416,7 +419,7 @@ err = client.SetDefaultTimeOut(5*time.Second)
 err = client.SetDefaultZoneId(ZoneId)
 
 // (非必须)，解决本机开发调试无法访问docker内网ip的场景，如win10上通过wsl2的centos7环境部署docker, 在本机上的程序连接docker环境会出现超时现象，此场景适合
-err = client.SetPublicIP("172.17.244.212")
+client.SetPublicIP("172.17.244.212")
 ```
 
 ### 连接接口
@@ -438,8 +441,8 @@ timeOut := 60
 zoneTables := map[uint32][]string{3:[]string{"game_players"}};
 //非必须,docker环境，程序无法连通docker环境IP场景(win10, wsl2, centos7, tcaplus docker)，设置容器暴露IP
 //TcaplusDB云环境,可设置为空，如：client.SetPublicIP("")
-//TcaplusDB Docker环境，可设置为创建容器时用TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定的ip
-_ := client.SetPublicIP("x.x.x.x")
+//TcaplusDB Docker环境，可设置为创建容器时用TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定的ip, 默认为空
+client.SetPublicIP("x.x.x.x")
 //建立连接
 err := client.Dial(appId, zoneList, dirUrl, signature, timeOut, zoneTables)
 //错误处理

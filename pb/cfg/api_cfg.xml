@@ -9,6 +9,8 @@
 		<zone_id>1</zone_id>
 		<!-- 表名-->
 		<pb_table>game_players</pb_table>
+		<!-- 可选，仅对docker环境有效，解决本地开发程序无法连通本机部署docker环境ip场景，创建容器时由参数TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定, 默认设置为空即可-->
+		<public_ip></public_ip>
 </ApiTstCfg>
 
 

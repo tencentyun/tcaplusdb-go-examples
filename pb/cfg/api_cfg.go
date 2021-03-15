@@ -13,6 +13,7 @@ type ApiCfg struct {
 	ZoneId    uint32   `xml:"zone_id"`
 	Signature string   `xml:"signature"`
 	PBTable   string   `xml:"pb_table"`
+	PublicIP  string   `xml:"public_ip"`
 }
 
 var ApiConfig *ApiCfg = nil

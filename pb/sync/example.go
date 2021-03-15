@@ -27,6 +27,8 @@ const (
 	ZoneId = 2
 	//表名称
 	TableName = "game_players"
+	//Docker环境，容器创建时TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定IP;
+	PublicIP = ""
 )
 
 //声明一个TcaplusDB连接客户端
@@ -43,6 +45,10 @@ func initClient() {
 		fmt.Println(err.Error())
 		return
 	}
+	//client.SetPublicIP(xxx): 可选，设置公共访问ip, 解决开发环境本地程序连接本地docker环境无法连通问题,默认设置为空
+	//docker环境：设置成创建容器时由参数TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定的ip,e.g: client.SetPublicIP("172.17.189.157")
+	//腾讯云环境：设置成默认的空即可
+	client.SetPublicIP(PublicIP)
 
 	zoneList := []uint32{ZoneId}
 	zoneTable := make(map[uint32][]string)
@@ -322,14 +328,14 @@ func traverse() {
 
 // 获取表记录总数
 func count() {
-        count, err := client.GetTableCount("game_players")
-        if err != nil {
-                fmt.Println(err.Error())
-                return
-        }
+	count, err := client.GetTableCount("game_players")
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
-        fmt.Println("Case Count:")
-        fmt.Printf("Count:%d\n", count)
+	fmt.Println("Case Count:")
+	fmt.Printf("Count:%d\n", count)
 }
 
 func main() {
