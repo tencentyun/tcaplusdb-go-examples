@@ -414,6 +414,9 @@ err = client.SetLogCfg("./logconf.xml")
 err = client.SetDefaultTimeOut(5*time.Second)
 // （非必须）可以设置默认表格组ID(ZoneId)(默认zoneList或传入map第一个zoneId)
 err = client.SetDefaultZoneId(ZoneId)
+
+// (非必须)，解决本机开发调试无法访问docker内网ip的场景，如win10上通过wsl2的centos7环境部署docker, 在本机上的程序连接docker环境会出现超时现象，此场景适合
+err = client.SetPublicIP("172.17.244.212")
 ```
 
 ### 连接接口
@@ -433,6 +436,10 @@ signature := "xxxxx";
 timeOut := 60
 //表列表,支持同时指定对应表格组下多个表，key: 表格组id, value: 表列表
 zoneTables := map[uint32][]string{3:[]string{"game_players"}};
+//非必须,docker环境，程序无法连通docker环境IP场景(win10, wsl2, centos7, tcaplus docker)，设置容器暴露IP
+//TcaplusDB云环境,可设置为空，如：client.SetPublicIP("")
+//TcaplusDB Docker环境，可设置为创建容器时用TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定的ip
+_ := client.SetPublicIP("x.x.x.x")
 //建立连接
 err := client.Dial(appId, zoneList, dirUrl, signature, timeOut, zoneTables)
 //错误处理

@@ -99,7 +99,7 @@ mod 模式需要在能连公网环境下使用。对于用户新建项目，可�
 - 1.在工程中建立 go.mod
 - 2.开启 module 模式
 - 3.执行命令 go clean --modcache
-- 4.执行命令 go mod edit -require="github.com/tencentyun/tcaplusdb-go-sdk@v0.0.1"
+- 4.执行命令 go mod edit -require="github.com/tencentyun/tcaplusdb-go-sdk@v0.0.7"
 - 5.在代码中引入 sdk: import "github.com/tencentyun/tcaplusdb-go-sdk/pb"
 
 ## 3 接口列表
@@ -590,6 +590,40 @@ func (c *PBClient) GetTableCountWithZone(table string, zoneId uint32) (int, erro
 **/
 func (c *client) GetTraverser(zoneId uint32, table string) *traverser.Traverser
 ```
+#### 3.1.21 获取appId
+```
+/**
+    @brief 获取本次连接的appId
+    @retval int appId
+**/
+func (c *client) GetAppId() uint64
+```
+#### 3.1.22 关闭client
+```
+/**
+    @brief 关闭client，释放资源
+**/
+func (c *client) Close()
+```
+#### 3.1.23 遍历表记录
+```
+/**
+    @brief 遍历表
+    @param [IN] msg proto.Message 由proto文件生成的记录结构体
+    @retval []proto.Message 查询结果列表
+    @retval error 错误码
+**/
+func (c *PBClient) Traverse(msg proto.Message) ([]proto.Message, error)
+
+/**
+    @brief 遍历表。当并发时如果zoneId各不相同，无法通过 SetDefaultZoneId 来设置zoneid，需使用此接口
+    @param [IN] msg proto.Message 由proto文件生成的记录结构体
+    @param [IN] zoneId 指定表所在zone
+    @retval []proto.Message 查询结果列表
+    @retval error 错误码
+**/
+func (c *PBClient) TraverseWithZone(msg proto.Message, zoneId uint32) ([]proto.Message, error)
+```
 
 ### 3.2 TcaplusRequest 接口
 
@@ -975,6 +1009,14 @@ HaveMoreResPkgs() int
 */
 GetRecordMatchCount() int
 ```
+#### 3.4.14 获取表记录总数
+```
+/*
+    @获取表的记录总数，只适用于TCAPLUS_API_GET_TABLE_RECORD_COUNT_REQ请求获取返回结果
+    @retval  <0 出错  记录总数
+*/
+GetTableRecordCount() int
+```
 
 ### 3.5 遍历
 
@@ -1191,3 +1233,4 @@ select sum(a) as sum_a from table where a > 1000;
 - 不支持其他未提到的查询。
 
 ## 6. 其它
+
