@@ -6,7 +6,7 @@
 syntax = "proto2";
 
 package tcaplusservice;
-option go_package="./";
+option go_package="./;tcaplusservice";
 
 import "google/protobuf/descriptor.proto";
 
