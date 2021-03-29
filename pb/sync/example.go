@@ -24,7 +24,7 @@ const (
 	//集群访问密码，本地docker版：登录tcaplusdb web运维平台查看(账号/密码:tcaplus/tcaplus)，业务管理->业务维护->查看pb_app业务对应密码; 云上版本：根据实际申请集群详情页查看
 	Signature = "xxxxx"
 	//表格组ID，替换为自己创建的表格组ID
-	ZoneId = 2
+	ZoneId = 1
 	//表名称
 	TableName = "game_players"
 	//Docker环境，容器创建时TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定IP;
