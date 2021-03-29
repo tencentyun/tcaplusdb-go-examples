@@ -1,6 +1,7 @@
 syntax = "proto3";                      // Specify the version of the protocol buffers language 
 
 package tcaplusservice;
+option go_package="./";
 
 import "tcaplusservice.optionv1.proto"; // Use the public definitions of TcaplusDB by importing them.  
 
