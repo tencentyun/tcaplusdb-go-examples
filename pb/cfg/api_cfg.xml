@@ -1,17 +1,8 @@
 <ApiTstCfg>
-	        <!-- 集群访问地址, 云环境参考控制台集群详情页,docker环境ip为部署机器ip -->
-		<dir_addr>tcp://9.135.8.93:9999</dir_addr>
-		<!-- 集群访问密码,云环境参考控制台集群详情页,docker环境参考tcaplus运维平台: 业务管理->业务维护->查看pb_app业务对应密码-->
-		<signature>D91CB0EFAD599936</signature>
-		<!-- 集群接入id/业务id，云环境参考控制台集群详情页,docker环境对于protobuf业务默认为3　-->
-		<app_id>3</app_id>
-		<!-- 集群表格组id, 查看自建的表格组id-->
-		<zone_id>1</zone_id>
-		<!-- 表名-->
-		<pb_table>game_players</pb_table>
-		<!-- 可选，仅对docker环境有效，解决本地开发程序无法连通本机部署docker环境ip场景，创建容器时由参数TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定, 默认设置为空即可-->
-		<public_ip></public_ip>
+	<dir_addr>tcp://x.x.x.x:xxxx</dir_addr>
+	<signature>xxxxxxxxxxx</signature>
+	<app_id>x</app_id>
+	<zone_id>x</zone_id>
+	<pb_table>game_players,tb_online_list</pb_table>
+	<public_ip></public_ip>
 </ApiTstCfg>
-
-
-

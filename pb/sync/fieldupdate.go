@@ -6,7 +6,6 @@ import (
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd"
-	"github.com/tencentyun/tcaplusdb-go-sdk/pb/response"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/terror"
 	"time"
 )
@@ -16,28 +15,8 @@ func main() {
 	client := tools.InitPBSyncClient()
 	defer client.Close()
 
-	// 创建异步协程接收请求
-	respChan := make(chan response.TcaplusResponse)
-	go func() {
-		for {
-			// resp err 均为 nil 说明响应池中没有任何响应
-			resp, err := client.RecvResponse()
-			if err != nil {
-				logger.ERR("RecvResponse error:%s", err)
-				continue
-			} else if resp == nil {
-				time.Sleep(time.Microsecond * 5)
-				continue
-			}
-			// 同步异步 id 找到对应的响应
-			if resp.GetAsyncId() == 12345 {
-				respChan <- resp
-			}
-		}
-	}()
-
-	// 生成 field increase 请求 (部分字段自增)
-	req, err := client.NewRequest(tools.ZoneId, "game_players", cmd.TcaplusApiPBFieldIncreaseReq)
+	// 生成 field update 请求
+	req, err := client.NewRequest(tools.ZoneId, "game_players", cmd.TcaplusApiPBFieldUpdateReq)
 	if err != nil {
 		logger.ERR("NewRequest error:%s", err)
 		return
@@ -57,7 +36,7 @@ func main() {
 		PlayerEmail:     "calvin@test.com",
 		GameServerId:    15,
 		Pay: &tcaplusservice.Payment{
-			Amount: 10,
+			Amount: 1000,
 		},
 	}
 	// 第一个返回值为记录的keybuf，用来唯一确定一条记录，多用于请求与响应记录相对应，此处无用
@@ -74,9 +53,6 @@ func main() {
 	// （非必须）设置记录版本的检查类型，用于乐观锁，详细见readme
 	// req.SetVersionPolicy(policy.NoCheckDataVersionAutoIncrease)
 	// record.SetVersion(1000)
-
-	// （非必须）设置 异步 id
-	req.SetAsyncId(12345)
 
 	// （非必须）设置userbuf，在响应中带回。这个是个开放功能，比如某些临时字段不想保存在全局变量中，
 	// 可以通过设置userbuf在发送端接收短传递，也可以起异步id的作用
@@ -98,15 +74,12 @@ func main() {
 		},
 	})
 
-	// 发送请求
-	err = client.SendRequest(req)
+	// 发送请求,接收响应
+	resp, err := client.Do(req, 5*time.Second)
 	if err != nil {
 		logger.ERR("SendRequest error:%s", err)
 		return
 	}
-
-	// 等待收取响应
-	resp := <- respChan
 
 	// 获取响应结果
 	errCode := resp.GetResult()
@@ -138,6 +111,6 @@ func main() {
 		fmt.Println(record.GetVersion())
 	}
 
-	logger.INFO("field increase success")
-	fmt.Println("field increase success")
+	logger.INFO("field update success")
+	fmt.Println("field update success")
 }

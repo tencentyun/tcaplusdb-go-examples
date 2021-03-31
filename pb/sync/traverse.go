@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
-	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/terror"
 	"time"
@@ -12,6 +12,7 @@ import (
 func main() {
 	// 创建 client，配置日志，连接数据库
 	client := tools.InitPBSyncClient()
+	defer client.Close()
 
 	// 获取遍历器，遍历器最多同时8个工作，如果超过会返回nil
 	tra := client.GetTraverser(tools.ZoneId, "game_players")
@@ -46,12 +47,6 @@ func main() {
 	})
 
 	// 发送请求
-	err := tra.Start()
-	if err != nil {
-		logger.ERR("SendRequest error:%s", err)
-		return
-	}
-
 	resps, err := client.DoTraverse(tra, 30*time.Second)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -82,5 +77,5 @@ func main() {
 			fmt.Println(tools.ConvertToJson(newMsg))
 		}
 	}
-
+	fmt.Println("traverse success")
 }

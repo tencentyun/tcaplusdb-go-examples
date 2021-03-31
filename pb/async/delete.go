@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
-	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/response"
@@ -14,6 +14,7 @@ import (
 func main() {
 	// 创建 client，配置日志，连接数据库
 	client := tools.InitPBSyncClient()
+	defer client.Close()
 
 	// 创建异步协程接收请求
 	respChan := make(chan response.TcaplusResponse)
@@ -67,8 +68,8 @@ func main() {
 	// （非必须）设置 异步 id
 	req.SetAsyncId(12345)
 
-	// （非必须，默认为 0）delete 请求设置 2 3 时将返回此次更新的记录，0 1 不返回记录
-	req.SetResultFlag(2)
+	// （非必须，默认为 0）delete 请求设置 3 时将返回此次删除的记录，0 1 2不返回记录
+	req.SetResultFlagForSuccess(3)
 
 	// （非必须）设置userbuf，在响应中带回。这个是个开放功能，比如某些临时字段不想保存在全局变量中，
 	// 可以通过设置userbuf在发送端接收短传递，也可以起异步id的作用

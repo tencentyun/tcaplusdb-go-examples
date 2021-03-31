@@ -6,7 +6,6 @@ import (
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd"
-	"github.com/tencentyun/tcaplusdb-go-sdk/pb/response"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/terror"
 	"time"
 )
@@ -15,26 +14,6 @@ func main() {
 	// 创建 client，配置日志，连接数据库
 	client := tools.InitPBSyncClient()
 	defer client.Close()
-
-	// 创建异步协程接收请求
-	respChan := make(chan response.TcaplusResponse)
-	go func() {
-		for {
-			// resp err 均为 nil 说明响应池中没有任何响应
-			resp, err := client.RecvResponse()
-			if err != nil {
-				logger.ERR("RecvResponse error:%s", err)
-				continue
-			} else if resp == nil {
-				time.Sleep(time.Microsecond * 5)
-				continue
-			}
-			// 同步异步 id 找到对应的响应
-			if resp.GetAsyncId() == 12345 {
-				respChan <- resp
-			}
-		}
-	}()
 
 	// 生成 get by part key 请求
 	req, err := client.NewRequest(tools.ZoneId, "game_players", cmd.TcaplusApiGetByPartkeyReq)
@@ -64,12 +43,6 @@ func main() {
 		logger.ERR("SetPBData error:%s", err)
 		return
 	}
-
-	// （非必须）设置 异步 id
-	req.SetAsyncId(12345)
-
-	// （非必须）设置分包
-	req.SetMultiResponseFlag(1)
 
 	// （非必须）对返回记录做限制，此处为从第0条开始返回1条记录
 	// req.SetResultLimit(1, 0)
@@ -108,47 +81,41 @@ func main() {
 		},
 	})
 
-	// 发送请求
-	err = client.SendRequest(req)
+	// 发送请求,接收响应
+	resps, err := client.DoMore(req, 5*time.Second)
 	if err != nil {
 		logger.ERR("SendRequest error:%s", err)
 		return
 	}
 
-	// 等待收取响应
-	resp := <- respChan
-
-	// 获取响应结果
-	errCode := resp.GetResult()
-	if errCode != terror.GEN_ERR_SUC {
-		logger.ERR("insert error:%s", terror.GetErrMsg(errCode))
-		return
-	}
-
-	// 获取userbuf
-	fmt.Println(string(resp.GetUserBuffer()))
-
-	// 如果有返回记录则用以下接口进行获取
-	for i := 0; i < resp.GetRecordCount(); i++ {
-		record, err := resp.FetchRecord()
-		if err != nil {
-			logger.ERR("FetchRecord failed %s", err.Error())
+	for _, resp := range resps {
+		// 获取响应结果
+		errCode := resp.GetResult()
+		if errCode != terror.GEN_ERR_SUC {
+			logger.ERR("insert error:%s", terror.GetErrMsg(errCode))
 			return
 		}
 
-		newMsg := &tcaplusservice.GamePlayers{}
-		err = record.GetPBData(newMsg)
-		if err != nil {
-			logger.ERR("GetPBData failed %s", err.Error())
-			return
+		// 获取userbuf
+		fmt.Println(string(resp.GetUserBuffer()))
+
+		// 如果有返回记录则用以下接口进行获取
+		for i := 0; i < resp.GetRecordCount(); i++ {
+			record, err := resp.FetchRecord()
+			if err != nil {
+				logger.ERR("FetchRecord failed %s", err.Error())
+				return
+			}
+
+			newMsg := &tcaplusservice.GamePlayers{}
+			err = record.GetPBData(newMsg)
+			if err != nil {
+				logger.ERR("GetPBData failed %s", err.Error())
+				return
+			}
+
+			fmt.Println(tools.ConvertToJson(newMsg))
 		}
-
-		fmt.Println(tools.ConvertToJson(newMsg))
-	}
-
-	// 此接口判断该请求是否还有没接收的响应
-	for resp.HaveMoreResPkgs() == 1 {
-		resp = <- respChan
 	}
 
 	logger.INFO("get by part key success")

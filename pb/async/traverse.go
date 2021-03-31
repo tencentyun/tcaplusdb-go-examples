@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
-	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/response"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/terror"
@@ -14,6 +14,7 @@ import (
 func main() {
 	// 创建 client，配置日志，连接数据库
 	client := tools.InitPBSyncClient()
+	defer client.Close()
 
 	// 创建异步协程接收请求
 	respChan := make(chan response.TcaplusResponse)

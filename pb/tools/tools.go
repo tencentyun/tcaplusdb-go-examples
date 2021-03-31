@@ -5,13 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
-	"sync"
-	"time"
-
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/cfg"
 	tcaplus "github.com/tencentyun/tcaplusdb-go-sdk/pb"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/response"
+	"strings"
+	"sync"
+	"time"
 )
 
 type clieninf interface {
@@ -58,13 +57,11 @@ func InitPBSyncClient() *tcaplus.PBClient {
 			fmt.Printf("excepted SetLogCfg success")
 			return
 		}
-		//可选，作用于docker环境，用于解决本地开发环境无法连通docker容器问题
-　　pbclient.SetPublicIP(cfg.ApiConfig.PublicIP)
 
 		ZoneId = cfg.ApiConfig.ZoneId
 
 		tables := strings.Split(cfg.ApiConfig.PBTable, ",")
-		zoneTable := map[uint32][]string{cfg.ApiConfig.ZoneId: tables}
+		zoneTable := map[uint32][]string{cfg.ApiConfig.ZoneId:tables}
 		err = pbclient.Dial(cfg.ApiConfig.AppId, []uint32{cfg.ApiConfig.ZoneId}, cfg.ApiConfig.DirUrl, cfg.ApiConfig.Signature, 30, zoneTable)
 		if err != nil {
 			fmt.Printf("excepted dial success, %s", err.Error())

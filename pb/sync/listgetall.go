@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
-	"fmt"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/terror"
@@ -13,49 +13,34 @@ import (
 func main() {
 	// 创建 client，配置日志，连接数据库
 	client := tools.InitPBSyncClient()
+	defer client.Close()
 
-	// 生成 batch get 请求
-	req, err := client.NewRequest(tools.ZoneId, "game_players", cmd.TcaplusApiBatchGetReq)
+	// 生成 get 请求
+	req, err := client.NewRequest(tools.ZoneId, "tb_online_list", cmd.TcaplusApiListGetAllReq)
 	if err != nil {
 		logger.ERR("NewRequest error:%s", err)
 		return
 	}
 
-	// 向请求中添加记录，对于 generic 表 index 无意义，填 0 即可
-	record1, err := req.AddRecord(0)
+	record, err := req.AddRecord(0)
 	if err != nil {
 		logger.ERR("AddRecord error:%s", err)
 		return
 	}
 
 	// 向记录中填充数据
-	msg1 := &tcaplusservice.GamePlayers{
-		PlayerId:        10805514,
-		PlayerName:      "Calvin",
-		PlayerEmail:     "zhang@test.com",
+	msg := &tcaplusservice.TbOnlineList{
+		Openid: 1,
+		Tconndid: 2,
+		Timekey: "test",
+		Gamesvrid: "lol",
 	}
+	// 清除key
+	client.ListDeleteAll(msg)
 	// 第一个返回值为记录的keybuf，用来唯一确定一条记录，多用于请求与响应记录相对应，此处无用
-	_, err = record1.SetPBData(msg1)
-	if err != nil {
-		logger.ERR("SetPBData error:%s", err)
-		return
-	}
-
-	// 向请求中添加记录，对于 generic 表 index 无意义，填 0 即可
-	record2, err := req.AddRecord(0)
-	if err != nil {
-		logger.ERR("AddRecord error:%s", err)
-		return
-	}
-
-	// 向记录中填充数据
-	msg2 := &tcaplusservice.GamePlayers{
-		PlayerId:        10805514,
-		PlayerName:      "Calvin",
-		PlayerEmail:     "calvin@test.com",
-	}
-	// 第一个返回值为记录的keybuf，用来唯一确定一条记录，多用于请求与响应记录相对应，此处无用
-	_, err = record2.SetPBData(msg2)
+	// key 字段必填，通过 proto 文件设置 key
+	// 本例中为 option(tcaplusservice.tcaplus_primary_key) = "openid,tconndid,timekey";
+	_, err = record.SetPBData(msg)
 	if err != nil {
 		logger.ERR("SetPBData error:%s", err)
 		return
@@ -66,34 +51,18 @@ func main() {
 	req.SetUserBuff([]byte("user buffer test"))
 
 	// （非必须） 防止记录不存在
-	client.Insert(&tcaplusservice.GamePlayers{
-		PlayerId:        10805514,
-		PlayerName:      "Calvin",
-		PlayerEmail:     "calvin@test.com",
-		GameServerId:    10,
-		LoginTimestamp:  []string{"2019-12-12 15:00:00"},
-		LogoutTimestamp: []string{"2019-12-12 16:00:00"},
-		IsOnline:        false,
-		Pay: &tcaplusservice.Payment{
-			PayId:  10101,
-			Amount: 1000,
-			Method: 2,
-		},
-	})
-	client.Insert(&tcaplusservice.GamePlayers{
-		PlayerId:        10805514,
-		PlayerName:      "Calvin",
-		PlayerEmail:     "zhang@test.com",
-		GameServerId:    10,
-		LoginTimestamp:  []string{"2019-12-12 15:00:00"},
-		LogoutTimestamp: []string{"2019-12-12 16:00:00"},
-		IsOnline:        false,
-		Pay: &tcaplusservice.Payment{
-			PayId:  10101,
-			Amount: 1000,
-			Method: 2,
-		},
-	})
+	client.ListAddAfter(&tcaplusservice.TbOnlineList{
+		Openid: 1,
+		Tconndid: 2,
+		Timekey: "test",
+		Gamesvrid: "lol",
+	}, -1)
+	client.ListAddAfter(&tcaplusservice.TbOnlineList{
+		Openid: 1,
+		Tconndid: 2,
+		Timekey: "test",
+		Gamesvrid: "lol",
+	}, -1)
 
 	// 发送请求,接收响应
 	resps, err := client.DoMore(req, 5*time.Second)
@@ -121,7 +90,7 @@ func main() {
 				return
 			}
 
-			newMsg := &tcaplusservice.GamePlayers{}
+			newMsg := &tcaplusservice.TbOnlineList{}
 			err = record.GetPBData(newMsg)
 			if err != nil {
 				logger.ERR("GetPBData failed %s", err.Error())
@@ -132,6 +101,6 @@ func main() {
 		}
 	}
 
-	logger.INFO("batch get success")
-	fmt.Println("batch get success")
+	logger.INFO("listgetall success")
+	fmt.Println("listgetall success")
 }

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
-        "github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
 	"fmt"
+	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
+	"github.com/tencentyun/tcaplusdb-go-examples/pb/tools"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/logger"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/protocol/cmd"
 	"github.com/tencentyun/tcaplusdb-go-sdk/pb/response"
@@ -96,6 +96,8 @@ func main() {
 		fmt.Printf("resp.GetTableRecordCount() %d != %d\n", resp.GetTableRecordCount(), old+1)
 		return
 	}
+
+	fmt.Printf("table count %d\n", resp.GetTableRecordCount())
 
 	logger.INFO("count success")
 	fmt.Println("count success")

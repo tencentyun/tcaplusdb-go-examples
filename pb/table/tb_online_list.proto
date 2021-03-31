@@ -1,0 +1,24 @@
+syntax = "proto3";
+ 
+package tcaplusservice;
+ 
+import "tcaplusservice.optionv1.proto";
+ 
+message tb_online_list {
+    option(tcaplusservice.tcaplus_primary_key) = "openid,tconndid,timekey";
+    option(tcaplusservice.tcaplus_customattr) = "TableType=LIST;ListNum=1023";
+ 
+    int32 openid = 1; //QQ Uin
+    int32 tconndid = 2;
+    string timekey = 3;
+    string gamesvrid = 4;
+    int32 logintime = 5 ;
+    repeated int64 lockid = 6;
+    pay_info pay = 7;
+ 
+    message pay_info {
+        uint64 total_money = 1;
+        uint64 pay_times = 2;
+    }
+    
+}

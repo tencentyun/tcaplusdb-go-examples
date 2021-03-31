@@ -8,14 +8,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	"time"
 
-	"github.com/tencentyun/tcaplusdb-go-examples/pb/table/tcaplusservice"
 	tcaplus "github.com/tencentyun/tcaplusdb-go-sdk/pb"
 	"google.golang.org/protobuf/proto"
 )
 
-//TcaplusDB RESTful API的连接参数
+//TcaplusDB GO PB API的连接参数
 const (
 	//集群访问地址，本地docker版：配置docker部署机器IP, 端口默认:9999, 腾讯云线上环境配置为连接地址IP和端口
 	DirUrl = "tcp://x.x.x.x:xxxx"
@@ -24,11 +24,9 @@ const (
 	//集群访问密码，本地docker版：登录tcaplusdb web运维平台查看(账号/密码:tcaplus/tcaplus)，业务管理->业务维护->查看pb_app业务对应密码; 云上版本：根据实际申请集群详情页查看
 	Signature = "xxxxx"
 	//表格组ID，替换为自己创建的表格组ID
-	ZoneId = 1
+	ZoneId = 2
 	//表名称
 	TableName = "game_players"
-	//Docker环境，容器创建时TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定IP;
-	PublicIP = ""
 )
 
 //声明一个TcaplusDB连接客户端
@@ -45,10 +43,6 @@ func initClient() {
 		fmt.Println(err.Error())
 		return
 	}
-	//client.SetPublicIP(xxx): 可选，设置公共访问ip, 解决开发环境本地程序连接本地docker环境无法连通问题,默认设置为空
-	//docker环境：设置成创建容器时由参数TCAPLUS_CONTAINER_PROXY_PUBLIC_IP指定的ip,e.g: client.SetPublicIP("172.17.189.157")
-	//腾讯云环境：设置成默认的空即可
-	client.SetPublicIP(PublicIP)
 
 	zoneList := []uint32{ZoneId}
 	zoneTable := make(map[uint32][]string)
@@ -98,7 +92,6 @@ func getRecord() {
 		PlayerName:  "Calvin",
 		PlayerEmail: "calvin@test.com",
 	}
-
 	err := client.Get(record)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -313,9 +306,10 @@ func indexQuery() {
 
 // 遍历记录
 func traverse() {
+
 	record := &tcaplusservice.GamePlayers{}
 	// 遍历时间可能比较长超时时间设长一些
-	client.SetDefaultTimeOut(30 * time.Second)
+	client.SetDefaultTimeOut(30*time.Second)
 	msgs, err := client.Traverse(record)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -355,5 +349,5 @@ func main() {
 	//partkeyGetRecord()	// 使用前请插入需要查询的记录
 	//indexQuery()			// 使用前请设置索引
 	//traverse()			// 使用前请先随便插入几条记录
-	//count()
+	//count()				// 使用前请先随便插入几条记录
 }
