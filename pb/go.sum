@@ -38,6 +38,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/tencentyun/tcaplusdb-go-sdk v0.0.8 h1:tcIr2ReZwU1aWLavIpk6mB+WbztUe33tft0gx/+TEI8=
 github.com/tencentyun/tcaplusdb-go-sdk v0.0.8/go.mod h1:nDnqodFBkbXwn8K0jUYBrZrbLiqwzkqaqzS/ICL/iYQ=
+github.com/tencentyun/tcaplusdb-go-sdk v0.0.10 h1:zCGjp/xKXSHTkAS77+UsWyAiDCGRNF2Eza5dfNl468o=
+github.com/tencentyun/tcaplusdb-go-sdk v0.0.10/go.mod h1:nDnqodFBkbXwn8K0jUYBrZrbLiqwzkqaqzS/ICL/iYQ=
 github.com/tencentyun/tsf4g v0.0.1 h1:GSpjSWMZ9hskqWvGjU6uKLz74bJFsCax4W/rnnOwQXw=
 github.com/tencentyun/tsf4g v0.0.1/go.mod h1:cJ1HM661kszsKRGkDHentqj/5mY3Vt4v3ATBitRb3f4=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
