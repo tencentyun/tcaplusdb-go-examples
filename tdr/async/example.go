@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/tencentyun/tcaplusdb-go-sdk/tdr"
 	"github.com/tencentyun/tcaplusdb-go-examples/tdr/async/service_info"
+	tcaplus "github.com/tencentyun/tcaplusdb-go-sdk/tdr"
 	"github.com/tencentyun/tcaplusdb-go-sdk/tdr/protocol/cmd"
 	"github.com/tencentyun/tcaplusdb-go-sdk/tdr/response"
 	"github.com/tencentyun/tcaplusdb-go-sdk/tdr/terror"
@@ -15,8 +15,8 @@ import (
 const (
 	AppId     = uint64(2)
 	ZoneId    = uint32(3)
-	DirUrl    = "tcp://10.123.16.70:9999"
-	Signature = "D1E7267515C37B5F"
+	DirUrl    = "tcp://9.135.8.93:9999"
+	Signature = "2220C41F8AA79100"
 	TableName = "service_info"
 )
 
@@ -42,6 +42,53 @@ func recvResponse(client *tcaplus.Client) (response.TcaplusResponse, error) {
 		}
 	}
 }
+
+func preInsert(data *service_info.Service_Info) {
+	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiInsertReq)
+	if err != nil {
+		fmt.Printf("NewRequest TcaplusApiInsertReq failed %v\n", err.Error())
+		return
+	}
+	rec, err := req.AddRecord(0)
+	if err != nil {
+		fmt.Printf("AddRecord failed %v\n", err.Error())
+		return
+	}
+	if err := rec.SetData(data); err != nil {
+		fmt.Printf("SetData failed %v\n", err.Error())
+		return
+	}
+	//发送请求接收响应
+	_, err = client.Do(req, 5*time.Second)
+	if err != nil {
+		fmt.Printf("recv err %s\n", err.Error())
+		return
+	}
+}
+
+func preDelete(data *service_info.Service_Info) {
+	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiDeleteReq)
+	if err != nil {
+		fmt.Printf("NewRequest TcaplusApiDeleteReq failed %v\n", err.Error())
+		return
+	}
+	rec, err := req.AddRecord(0)
+	if err != nil {
+		fmt.Printf("AddRecord failed %v\n", err.Error())
+		return
+	}
+	if err := rec.SetData(data); err != nil {
+		fmt.Printf("SetData failed %v\n", err.Error())
+		return
+	}
+	//发送请求接收响应
+	_, err = client.Do(req, 5*time.Second)
+	if err != nil {
+		fmt.Printf("recv err %s\n", err.Error())
+		return
+	}
+}
+
 func main() {
 	client = tcaplus.NewClient()
 	//日志配置，不配置则debug打印到控制台
@@ -57,13 +104,16 @@ func main() {
 	}
 	fmt.Printf("Dial finish\n")
 	getPartKeyExample()
-        deleteByPartKeyExample()
+	deleteByPartKeyExample()
 	insertExample()
 	getExample()
 	updateExample()
 	replaceExample()
 	deleteExample()
+	batchGetExample()
+	indexQueryExample()
 }
+
 func insertExample() {
 	//创建insert请求
 	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiInsertReq)
@@ -95,6 +145,10 @@ func insertExample() {
 	route := "test"
 	data.Routeinfo_Len = uint32(len(route))
 	data.Routeinfo = []byte(route)
+
+	// 防止记录已存在
+	preDelete(data)
+
 	//将tdr的数据设置到请求的记录中
 	if err := rec.SetData(data); err != nil {
 		fmt.Printf("SetData failed %v\n", err.Error())
@@ -119,7 +173,9 @@ func insertExample() {
 		fmt.Printf("response ret errCode: %d, errMsg: %s", tcapluserr, terror.GetErrMsg(tcapluserr))
 		return
 	}
+	fmt.Println("insertExample Success")
 }
+
 func getExample() {
 	//创建Get请求
 	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiGetReq)
@@ -144,6 +200,10 @@ func getExample() {
 	data.Envdata = "oa"
 	data.Name = "com"
 	//将tdr的数据设置到请求的记录中
+
+	// 方剂记录不存在
+	preInsert(data)
+
 	if err := rec.SetData(data); err != nil {
 		fmt.Printf("SetData failed %v\n", err.Error())
 		return
@@ -184,7 +244,9 @@ func getExample() {
 		fmt.Printf("getExample response record data %+v, route: %s\n",
 			data, string(data.Routeinfo[0:data.Routeinfo_Len]))
 	}
+	fmt.Println("getExample Success")
 }
+
 func getPartKeyExample() {
 	//创建Get请求
 	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiGetByPartkeyReq)
@@ -209,6 +271,15 @@ func getPartKeyExample() {
 	data.Gameid = "dev"
 	//data.Envdata = "oaasqomk"
 	data.Name = "com"
+
+	// 防止记录不存在
+	data.Envdata = "456"
+	data.Expansion = "123"
+	preInsert(data)
+	data.Envdata = "123"
+	data.Expansion = "456"
+	preInsert(data)
+
 	//将tdr的数据设置到请求的记录中
 //	flist := []string {"updatetime"}
 	var flist  []string = nil
@@ -216,14 +287,14 @@ func getPartKeyExample() {
 		fmt.Printf("SetData failed %v\n", err.Error())
 		return
 	}
-	fmt.Printf("+++++++++++++++++++++++++value map : %d\n", len(rec.ValueMap))
+	fmt.Printf("value map : %d\n", len(rec.ValueMap))
 	fmt.Printf("getPartKeyExample SetData finish\n")
 	if err := client.SendRequest(req); err != nil {
 		fmt.Printf("SendRequest failed %v\n", err.Error())
 		return
 	}
-	var total int = 0
-	for ;; {
+	var total int
+	for {
 		fmt.Printf("getPartKeyExample send finish\n")
 		resp, err := recvResponse(client)
 		if err != nil {
@@ -267,7 +338,9 @@ func getPartKeyExample() {
 			break
 		}
 	}
+	fmt.Println("getPartKeyExample Success")
 }
+
 func updateExample() {
 	//创建Update请求
 	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiUpdateReq)
@@ -304,6 +377,10 @@ func updateExample() {
 	route := "test"
 	data.Routeinfo_Len = uint32(len(route))
 	data.Routeinfo = []byte(route)
+
+	// 防止记录不存在
+	preInsert(data)
+
 	//将tdr的数据设置到请求的记录中
 	if err := rec.SetData(data); err != nil {
 		fmt.Printf("SetData failed %v\n", err.Error())
@@ -345,7 +422,9 @@ func updateExample() {
 		fmt.Printf("updateExample request  record data %+v, route: %s\n",
 			data, string(data.Routeinfo[0:data.Routeinfo_Len]))
 	}
+	fmt.Println("updateExample Success")
 }
+
 func replaceExample() {
 	//创建Replace请求
 	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiReplaceReq)
@@ -423,7 +502,9 @@ func replaceExample() {
 		fmt.Printf("replaceExample request  record data %+v, route: %s\n",
 			data, string(data.Routeinfo[0:data.Routeinfo_Len]))
 	}
+	fmt.Println("replaceExample Success")
 }
+
 func deleteExample() {
 	//创建Delete请求
 	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiDeleteReq)
@@ -454,6 +535,10 @@ func deleteExample() {
 	data.Envdata = "oagfgadsf"
 	data.Name = "com"
 	data.Expansion = "fds"
+
+	// 防止记录不存在
+	preInsert(data)
+
 	//将tdr的数据设置到请求的记录中
 	if err := rec.SetData(data); err != nil {
 		fmt.Printf("SetData failed %v\n", err.Error())
@@ -490,12 +575,15 @@ func deleteExample() {
 			fmt.Printf("record.GetData failed %s\n", err.Error())
 			return
 		}
-		fmt.Printf("\ndeleteExample response record data %+v, route: %s",
+		fmt.Printf("deleteExample response record data %+v, route: %s\n",
 			oldData, string(oldData.Routeinfo[0:oldData.Routeinfo_Len]))
-		fmt.Printf("\ndeleteExample request  record data %+v, route: %s",
+		fmt.Printf("deleteExample request  record data %+v, route: %s\n",
 			data, string(data.Routeinfo[0:data.Routeinfo_Len]))
 	}
+
+	fmt.Println("deleteExample Success")
 }
+
 func deleteByPartKeyExample() {
 	//创建Delete请求
 	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiDeleteByPartkeyReq)
@@ -526,6 +614,15 @@ func deleteByPartKeyExample() {
 	data.Gameid = "dev"
 	//data.Envdata = "oaasqomk"
 	data.Name = "com"
+
+	// 防止记录不存在
+	data.Envdata = "456"
+	data.Expansion = "123"
+	preInsert(data)
+	data.Envdata = "123"
+	data.Expansion = "456"
+	preInsert(data)
+
 	//将tdr的数据设置到请求的记录中
 	if err := rec.SetDataWithIndexAndField(data, nil,"Index_Gameid_Name"); err != nil {
 		fmt.Printf("SetData failed %v\n", err.Error())
@@ -538,7 +635,7 @@ func deleteByPartKeyExample() {
 	fmt.Printf("deleteByPartKeyExample send finish\n")
 	var total_num int = 0;
 	//recv response
-	for ;; {
+	for {
 		resp, err := recvResponse(client)
 		if err != nil {
 			fmt.Printf("recv err %s\n", err.Error())
@@ -578,83 +675,148 @@ func deleteByPartKeyExample() {
 			break
 		}
 	}
+	fmt.Println("deleteByPartKeyExample Success")
 }
 
-func updateByPartKeyExample() {
-	//创建Delete请求
-	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiUpdateByPartkeyReq)
+func batchGetExample() {
+	//创建BatchGet请求
+	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiBatchGetReq)
 	if err != nil {
-		fmt.Printf("NewRequest TcaplusApiUpdateByPartkeyReq failed %v\n", err.Error())
+		fmt.Printf("batchGetExample NewRequest TcaplusApiGetReq failed %v\n", err.Error())
 		return
 	}
-	fmt.Printf("updateByPartKeyExample NewRequest TcaplusApiUpdateByPartkeyReq finish\n")
+	fmt.Printf("batchGetExample NewRequest TcaplusApiGetReq finish\n")
 	//设置异步请求ID，异步请求通过ID让响应和请求对应起来
-	req.SetAsyncId(770)
-	//设置结果标记位，删除成功后，返回tcaplus端的旧数据，默认为0
-	if err := req.SetResultFlag(3); err != nil {
-		fmt.Printf("SetResultFlag failed %v\n", err.Error())
-		return
-	}
-	fmt.Printf("updateByPartKeyExample SetResultFlag finish\n")
+	req.SetAsyncId(775)
 	//为request添加一条记录，（index只有在list表中支持，generic不校验）
 	rec, err := req.AddRecord(0)
 	if err != nil {
-		fmt.Printf("AddRecord failed %v\n", err.Error())
+		fmt.Printf("batchGetExample AddRecord failed %v\n", err.Error())
 		return
 	}
-	fmt.Printf("updateByPartKeyExample AddRecord finish\n")
-	//申请tdr结构体并赋值key，最好调用tdr pkg的NewXXX函数，会将成员初始化为tdr定义的tdr默认值，
+	fmt.Printf("batchGetExample AddRecord finish\n")
+	//申请tdr结构体并赋值Key，最好调用tdr pkg的NewXXX函数，会将成员初始化为tdr定义的tdr默认值，
 	// 不要自己new，自己new，某些结构体未初始化，存在panic的风险
 	data := service_info.NewService_Info()
-	data.Gameid = "gid_1"
-	data.Envdata = "XXXXXXXXXXX"
+	data.Gameid = "dev"
+	//data.Envdata = "oaasqomk"
 	data.Name = "com"
-	data.Inst_Max_Num = 123
-	//将tdr的数据设置到请求的记录中
-	if err := rec.SetDataWithIndexAndField(data, nil,"Index_Gameid_Name"); err != nil {
+
+	// 防止记录不存在
+	data.Envdata = "456"
+	data.Expansion = "123"
+	preInsert(data)
+	if err := rec.SetData(data); err != nil {
 		fmt.Printf("SetData failed %v\n", err.Error())
 		return
 	}
+
+	data.Envdata = "123"
+	data.Expansion = "456"
+	preInsert(data)
+	rec, err = req.AddRecord(0)
+	if err != nil {
+		fmt.Printf("batchGetExample AddRecord failed %v\n", err.Error())
+		return
+	}
+	fmt.Printf("batchGetExample AddRecord finish\n")
+	if err := rec.SetData(data); err != nil {
+		fmt.Printf("SetData failed %v\n", err.Error())
+		return
+	}
+
+	fmt.Printf("value map : %d\n", len(rec.ValueMap))
+	fmt.Printf("batchGetExample SetData finish\n")
 	if err := client.SendRequest(req); err != nil {
 		fmt.Printf("SendRequest failed %v\n", err.Error())
 		return
 	}
-	fmt.Printf("deleteByPartKeyExample send finish\n")
-	//recv response
-	for ;; {
+	var total int
+	for {
+		fmt.Printf("batchGetExample send finish\n")
 		resp, err := recvResponse(client)
 		if err != nil {
 			fmt.Printf("recv err %s\n", err.Error())
 			return
 		}
 		//带回请求的异步ID
-		fmt.Printf("updateByPartKeyExample resp success, AsyncId:%d\n", resp.GetAsyncId())
+		fmt.Printf("batchGetExample resp success, AsyncId:%d\n", resp.GetAsyncId())
 		tcapluserr := resp.GetResult()
 		if tcapluserr != 0 {
-			fmt.Printf("response ret errCode: %d, errMsg: %s", tcapluserr, terror.GetErrMsg(tcapluserr))
+			fmt.Printf("response ret %s\n",
+				"errCode: "+strconv.Itoa(tcapluserr)+", errMsg: "+terror.ErrorCodes[tcapluserr])
 			return
 		}
-		has_more := resp.HaveMoreResPkgs()
-		//response中带有获取的旧记录
-		fmt.Printf("updateByPartKeyExample response success record count %d\n", resp.GetRecordCount())
-		for i := 0; i < resp.GetRecordCount(); i++ {
-			record, err := resp.FetchRecord()
-			if err != nil {
-				fmt.Printf("FetchRecord failed %s\n", err.Error())
-				return
-			}
-			oldData := service_info.NewService_Info()
-			if err := record.GetData(oldData); err != nil {
-				fmt.Printf("record.GetData failed %s\n", err.Error())
-				return
-			}
-			fmt.Printf("updateByPartKeyExample response record data %+v, route: %s",
-				oldData, string(oldData.Routeinfo[0:oldData.Routeinfo_Len]))
-			//fmt.Printf("updateByPartKeyExample request  record data %+v, route: %s",
-			// data, string(data.Routeinfo[0:data.Routeinfo_Len]))
-		}
-		if 0 == has_more{
+		haveMore := resp.HaveMoreResPkgs()
+		//response中带有获取的记录
+		total +=  resp.GetRecordCount()
+		fmt.Printf("batchGetExample response success record count %d, total:%d\n",
+			resp.GetRecordCount(),total)
+
+		if 0 == haveMore{
 			break
 		}
 	}
+	fmt.Println("batchGetExample Success")
+}
+
+func indexQueryExample()() {
+	//创建BatchGet请求
+	req, err := client.NewRequest(ZoneId, TableName, cmd.TcaplusApiSqlReq)
+	if err != nil {
+		fmt.Printf("indexQueryExample NewRequest TcaplusApiGetReq failed %v\n", err.Error())
+		return
+	}
+	fmt.Printf("indexQueryExample NewRequest TcaplusApiGetReq finish\n")
+	//设置异步请求ID，异步请求通过ID让响应和请求对应起来
+	req.SetAsyncId(775)
+
+	query := fmt.Sprintf("select * from service_info where gameid=dev and name=com")
+	req.SetSql(query)
+	fmt.Printf("indexQueryExample SetSql finish\n")
+	//申请tdr结构体并赋值Key，最好调用tdr pkg的NewXXX函数，会将成员初始化为tdr定义的tdr默认值，
+	// 不要自己new，自己new，某些结构体未初始化，存在panic的风险
+	data := service_info.NewService_Info()
+	data.Gameid = "dev"
+	data.Name = "com"
+
+	// 防止记录不存在
+	data.Envdata = "456"
+	data.Expansion = "123"
+	preInsert(data)
+	data.Envdata = "123"
+	data.Expansion = "456"
+	preInsert(data)
+
+	if err := client.SendRequest(req); err != nil {
+		fmt.Printf("SendRequest failed %v\n", err.Error())
+		return
+	}
+	var total int
+	for {
+		fmt.Printf("indexQueryExample send finish\n")
+		resp, err := recvResponse(client)
+		if err != nil {
+			fmt.Printf("recv err %s\n", err.Error())
+			return
+		}
+		//带回请求的异步ID
+		fmt.Printf("indexQueryExample resp success, AsyncId:%d\n", resp.GetAsyncId())
+		tcapluserr := resp.GetResult()
+		if tcapluserr != 0 {
+			fmt.Printf("response ret %s\n",
+				"errCode: "+strconv.Itoa(tcapluserr)+", errMsg: "+terror.ErrorCodes[tcapluserr])
+			return
+		}
+		haveMore := resp.HaveMoreResPkgs()
+		//response中带有获取的记录
+		total +=  resp.GetRecordCount()
+		fmt.Printf("indexQueryExample response success record count %d, total:%d\n",
+			resp.GetRecordCount(),total)
+
+		if 0 == haveMore{
+			break
+		}
+	}
+	fmt.Println("indexQueryExample Success")
 }
